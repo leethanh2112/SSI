@@ -1,0 +1,36 @@
+---
+- hosts: HO-AccessSW
+  gather_facts: no
+  connection: local
+
+  tasks:
+   - name: OBTAIN LOGIN INFORMATION
+     include_vars: secrets.yml
+
+   - name: DEFINE PROVIDER
+     set_fact:
+       provider:
+         host: "{{ ansible_host }}"
+         username: "{{ creds['username'] }}"
+         password: "{{ creds['password'] }}"
+         auth_pass: "{{ creds['auth_pass'] }}"
+
+   - name: Change pass user admin
+     ios_config:
+       provider: "{{ provider }}"
+       authorize: yes
+       lines:
+         - username adminssi privilege 15 secret sSi@0!9@239
+
+   - name: write configuration
+     ios_config:
+       provider: "{{ provider }}"
+       authorize: yes
+       lines:
+         - do write
+
+   - name: SAVE & BACKUP CONFIGURATION
+     ios_config:
+       provider: "{{ provider }}"
+       authorize: yes
+       backup: yes
